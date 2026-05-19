@@ -318,12 +318,16 @@ install_mysql() {
         ubuntu|debian)
             if [ "$DB_TYPE" = "mysql" ]; then
                 # Download MySQL APT repository configuration
-                wget -c https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
+                wget -c https://dev.mysql.com/get/mysql-apt-config_0.8.32-1_all.deb
                 
                 # Auto-select version
                 export DEBIAN_FRONTEND=noninteractive
                 echo "mysql-apt-config mysql-apt-config/select-server select mysql-$MYSQL_VERSION" | debconf-set-selections
-                dpkg -i mysql-apt-config_0.8.29-1_all.deb
+                dpkg -i mysql-apt-config_0.8.32-1_all.deb
+                
+                # Import MySQL GPG key
+                apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+                
                 apt-get update
                 
                 # Install MySQL
@@ -338,6 +342,9 @@ install_mysql() {
             if [ "$DB_TYPE" = "mysql" ]; then
                 # Install MySQL YUM repository
                 yum install -y https://dev.mysql.com/get/mysql80-community-release-el${VERSION}-1.noarch.rpm
+                
+                # Import MySQL GPG key
+                rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
                 
                 # Disable other versions, enable specified version
                 if [ "$MYSQL_VERSION" = "5.7" ]; then
@@ -591,15 +598,15 @@ EOF
         <h1>ðŸŽ‰ LNMP Environment Installed Successfully!</h1>
         
         <div class="status success">
-            <strong>âœ?/strong> Nginx is running
+            <strong>ï¿?/strong> Nginx is running
         </div>
         
         <div class="status success">
-            <strong>âœ?/strong> <?php echo $DB_TYPE; ?> is running
+            <strong>ï¿?/strong> <?php echo $DB_TYPE; ?> is running
         </div>
         
         <div class="status success">
-            <strong>âœ?/strong> PHP <?php echo PHP_VERSION; ?> is running
+            <strong>ï¿?/strong> PHP <?php echo PHP_VERSION; ?> is running
         </div>
         
         <div class="status info">
@@ -629,9 +636,9 @@ EOF
                     $version = $stmt->fetchColumn();
                     echo "<tr><td>MariaDB Version</td><td>$version</td></tr>";
                 }
-                echo "<tr><td>Connection Status</td><td style='color:green'>âœ?Success</td></tr>";
+                echo "<tr><td>Connection Status</td><td style='color:green'>ï¿?Success</td></tr>";
             } catch (PDOException $e) {
-                echo "<tr><td>Database Connection</td><td style='color:red'>âœ?Failed: " . $e->getMessage() . "</td></tr>";
+                echo "<tr><td>Database Connection</td><td style='color:red'>ï¿?Failed: " . $e->getMessage() . "</td></tr>";
             }
             ?>
         </table>
@@ -645,7 +652,7 @@ EOF
             <?php
             $extensions = ['mysqli', 'pdo_mysql', 'curl', 'gd', 'mbstring', 'xml', 'zip', 'bcmath'];
             foreach ($extensions as $ext) {
-                $status = extension_loaded($ext) ? 'âœ?Loaded' : 'âœ?Not Loaded';
+                $status = extension_loaded($ext) ? 'ï¿?Loaded' : 'ï¿?Not Loaded';
                 $color = extension_loaded($ext) ? 'green' : 'red';
                 echo "<tr><td>$ext</td><td style='color:$color'>$status</td></tr>";
             }
@@ -695,61 +702,61 @@ verify_installation() {
     
     # Check Nginx
     if systemctl is-active --quiet nginx; then
-        log_success "âœ?Nginx service is running"
+        log_success "ï¿?Nginx service is running"
     else
-        log_error "âœ?Nginx service is not running"
+        log_error "ï¿?Nginx service is not running"
         ((errors++))
     fi
     
     # Check database
     if systemctl is-active --quiet ${DB_TYPE}; then
-        log_success "âœ?$DB_TYPE service is running"
+        log_success "ï¿?$DB_TYPE service is running"
     else
-        log_error "âœ?$DB_TYPE service is not running"
+        log_error "ï¿?$DB_TYPE service is not running"
         ((errors++))
     fi
     
     # Check PHP-FPM
     if [ "$OS" = "centos" ] || [ "$OS" = "rhel" ]; then
         if systemctl is-active --quiet php-fpm; then
-            log_success "âœ?PHP-FPM service is running"
+            log_success "ï¿?PHP-FPM service is running"
         else
-            log_error "âœ?PHP-FPM service is not running"
+            log_error "ï¿?PHP-FPM service is not running"
             ((errors++))
         fi
     else
         if systemctl is-active --quiet php${PHP_VERSION}-fpm; then
-            log_success "âœ?PHP${PHP_VERSION}-FPM service is running"
+            log_success "ï¿?PHP${PHP_VERSION}-FPM service is running"
         else
-            log_error "âœ?PHP${PHP_VERSION}-FPM service is not running"
+            log_error "ï¿?PHP${PHP_VERSION}-FPM service is not running"
             ((errors++))
         fi
     fi
     
     # Test PHP
     if php -v &> /dev/null; then
-        log_success "âœ?PHP CLI is available"
+        log_success "ï¿?PHP CLI is available"
         php -v | head -n 1
     else
-        log_error "âœ?PHP CLI is not available"
+        log_error "ï¿?PHP CLI is not available"
         ((errors++))
     fi
     
     # Test database connection
     if [ "$DB_TYPE" = "mysql" ]; then
         if mysql -e "SELECT VERSION();" &> /dev/null; then
-            log_success "âœ?Database connection is working"
+            log_success "ï¿?Database connection is working"
             mysql -e "SELECT VERSION();" | tail -n 1
         else
-            log_error "âœ?Database connection failed"
+            log_error "ï¿?Database connection failed"
             ((errors++))
         fi
     else
         if mysql -e "SELECT VERSION();" &> /dev/null; then
-            log_success "âœ?Database connection is working"
+            log_success "ï¿?Database connection is working"
             mysql -e "SELECT VERSION();" | tail -n 1
         else
-            log_error "âœ?Database connection failed"
+            log_error "ï¿?Database connection failed"
             ((errors++))
         fi
     fi
