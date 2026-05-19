@@ -57,7 +57,7 @@ INSTALL_LOG="/tmp/lnmp_install_$(date +%Y%m%d_%H%M%S).log"
 NGINX_VERSION=""
 MYSQL_VERSION=""
 PHP_VERSION=""
-DB_TYPE="mysql"  # mysql or mariadb
+DB_TYPE="mariadb"  # Default to mariadb to avoid GPG key issues
 WEB_ROOT="/var/www/html"
 CONFIG_BACKUP_DIR="/tmp/lnmp_backup_$(date +%Y%m%d_%H%M%S)"
 
@@ -189,12 +189,12 @@ select_versions() {
     # Select database type
     echo ""
     echo "=== Select Database Type ==="
-    echo "1) MySQL"
-    echo "2) MariaDB"
+    echo "1) MariaDB (recommended - no GPG key issues)"
+    echo "2) MySQL"
     read -p "Select [1-2, default:1]: " db_choice
     case $db_choice in
-        2) DB_TYPE="mariadb" ;;
-        *) DB_TYPE="mysql" ;;
+        2) DB_TYPE="mysql" ;;
+        *) DB_TYPE="mariadb" ;;
     esac
     
     # Select database version
