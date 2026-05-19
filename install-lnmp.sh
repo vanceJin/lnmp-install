@@ -317,7 +317,10 @@ install_mysql() {
     case $OS in
         ubuntu|debian)
             if [ "$DB_TYPE" = "mysql" ]; then
-                # Download MySQL APT repository configuration
+                # Remove old MySQL repository if exists
+                rm -f /etc/apt/sources.list.d/mysql.list
+                
+                # Download and install MySQL APT repository
                 wget -c https://dev.mysql.com/get/mysql-apt-config_0.8.32-1_all.deb
                 
                 # Auto-select version
@@ -325,10 +328,13 @@ install_mysql() {
                 echo "mysql-apt-config mysql-apt-config/select-server select mysql-$MYSQL_VERSION" | debconf-set-selections
                 dpkg -i mysql-apt-config_0.8.32-1_all.deb
                 
-                # Import MySQL GPG key
-                apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+                # Import MySQL GPG key directly
+                apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C 2>/dev/null || \
+                apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3A79F24DD46DD3B1 2>/dev/null || \
+                curl -sSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2023 | apt-key add - 2>/dev/null || true
                 
-                apt-get update
+                # Update with error handling
+                apt-get update || true
                 
                 # Install MySQL
                 apt-get install -y mysql-server
