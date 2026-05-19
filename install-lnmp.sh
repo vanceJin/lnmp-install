@@ -317,8 +317,11 @@ install_mysql() {
     case $OS in
         ubuntu|debian)
             if [ "$DB_TYPE" = "mysql" ]; then
-                # Remove old MySQL repository if exists
+                # Remove old MySQL repository and GPG keys
                 rm -f /etc/apt/sources.list.d/mysql.list
+                rm -f /etc/apt/trusted.gpg.d/mysql.gpg
+                apt-key del B7B3B788A8D3785C 2>/dev/null || true
+                apt-key del 3A79F24DD46DD3B1 2>/dev/null || true
                 
                 # Download and install MySQL APT repository
                 wget -c https://dev.mysql.com/get/mysql-apt-config_0.8.32-1_all.deb
@@ -328,7 +331,7 @@ install_mysql() {
                 echo "mysql-apt-config mysql-apt-config/select-server select mysql-$MYSQL_VERSION" | debconf-set-selections
                 dpkg -i mysql-apt-config_0.8.32-1_all.deb
                 
-                # Import MySQL GPG key directly
+                # Import MySQL GPG key
                 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C 2>/dev/null || \
                 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3A79F24DD46DD3B1 2>/dev/null || \
                 curl -sSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2023 | apt-key add - 2>/dev/null || true
@@ -339,7 +342,8 @@ install_mysql() {
                 # Install MySQL
                 apt-get install -y mysql-server
             else
-                # Install MariaDB
+                # Install MariaDB - no repository needed, use official Ubuntu/Debian repo
+                apt-get update
                 apt-get install -y mariadb-server mariadb-client
             fi
             ;;
@@ -360,7 +364,7 @@ install_mysql() {
                 
                 yum install -y mysql-community-server
             else
-                # Install MariaDB
+                # Install MariaDB - use official CentOS/RedHat repo
                 yum install -y mariadb-server mariadb
             fi
             ;;
