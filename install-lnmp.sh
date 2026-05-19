@@ -40,7 +40,7 @@ handle_error() {
     
     # 回滚选项
     echo ""
-    echo -ne "${YELLOW}是否要回滚已安装的组件？(y/n):${NC} "
+    echo -ne "${YELLOW}Rollback installed components? (y/n): ${NC}"
     read -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
